@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,11 +10,12 @@ namespace FOG.EscapeTheLava
     {
         [SerializeField] private CanvasGroup canvasGroup = null;
         [SerializeField] private RectTransform panel = null;
-        [SerializeField] private Text titleText = null;
-        [SerializeField] private Text bodyText = null;
+        [SerializeField] private TextMeshProUGUI titleText = null;
+        [SerializeField] private TextMeshProUGUI bodyText = null;
         [SerializeField] private Button retryButton = null;
         [SerializeField] private Button nextLevelButton = null;
 
+        
         private Coroutine _showRoutine;
         public event Action RetryRequested;
         public event Action NextLevelRequested;

@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace FOG.EscapeTheLava
 {
@@ -11,7 +11,7 @@ namespace FOG.EscapeTheLava
         [SerializeField] private RectTransform root = null;
 
         private GameConfig _config;
-        private readonly Queue<Text> _textPool = new();
+        private readonly Queue<TextMeshProUGUI> _textPool = new();
 
         public void Initialize(GameConfig gameConfig)
         {
@@ -49,7 +49,7 @@ namespace FOG.EscapeTheLava
             StartCoroutine(Animate(text, rect));
         }
 
-        private Text GetText()
+        private TextMeshProUGUI GetText()
         {
             while (_textPool.Count > 0)
             {
@@ -63,10 +63,10 @@ namespace FOG.EscapeTheLava
             var rect = Instantiate(textTemplate, root, false);
             rect.gameObject.name = "Floating Score";
             rect.gameObject.SetActive(false);
-            return rect.GetComponent<Text>();
+            return rect.GetComponent<TextMeshProUGUI>();
         }
 
-        private IEnumerator Animate(Text text, RectTransform rect)
+        private IEnumerator Animate(TextMeshProUGUI text, RectTransform rect)
         {
             var elapsed = 0f;
             var duration = _config != null ? _config.floatingTextDuration : 0.85f;

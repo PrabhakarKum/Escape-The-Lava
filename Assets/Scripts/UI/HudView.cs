@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,9 +10,9 @@ namespace FOG.EscapeTheLava
     {
         [SerializeField] private RectTransform heartsRoot = null;
         [SerializeField] private RectTransform heartTemplate = null;
-        [SerializeField] private Text timerText = null;
-        [SerializeField] private Text scoreText = null;
-        [SerializeField] private Text levelNameText = null;
+        [SerializeField] private TextMeshProUGUI timerText = null;
+        [SerializeField] private TextMeshProUGUI scoreText = null;
+        [SerializeField] private TextMeshProUGUI levelNameText = null;
         
         [Header("Sprites")]
         [SerializeField] private Sprite heartFullSprite = null;
@@ -99,7 +100,7 @@ namespace FOG.EscapeTheLava
         public void SetScore(int score, int diamondsCollected, int totalDiamonds)
         {
             if (scoreText == null) return;
-            scoreText.text = $"Score {score}  ·  Diamonds {diamondsCollected}/{totalDiamonds}";
+            scoreText.text = $"Diamonds {diamondsCollected}/{totalDiamonds}";
         }
 
         public void SetLevelName(string name)

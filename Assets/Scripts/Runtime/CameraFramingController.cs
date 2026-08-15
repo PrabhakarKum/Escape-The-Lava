@@ -44,8 +44,8 @@ namespace FOG.EscapeTheLava
             _lastScreenHeight = Screen.height;
 
             _targetCamera.orthographic = true;
-            _targetCamera.clearFlags = CameraClearFlags.SolidColor;
-            _targetCamera.backgroundColor = new Color(0.035f, 0.045f, 0.06f, 1f);
+            //_targetCamera.clearFlags = CameraClearFlags.SolidColor;
+            //_targetCamera.backgroundColor = new Color(0.035f, 0.045f, 0.06f, 1f);
             _targetCamera.transform.position = new Vector3(0f, -0.42f, -10f);
 
             var aspect = Screen.height > 0 ? Screen.width / (float)Screen.height : 16f / 9f;
