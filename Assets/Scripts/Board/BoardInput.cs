@@ -8,18 +8,18 @@ namespace FOG.EscapeTheLava
 {
     public sealed class BoardInput : MonoBehaviour
     {
-        private Camera targetCamera;
-        private BoardController board;
+        private Camera _targetCamera;
+        private BoardController _board;
 
         public void Initialize(Camera cameraToUse, BoardController boardController)
         {
-            targetCamera = cameraToUse;
-            board = boardController;
+            _targetCamera = cameraToUse;
+            _board = boardController;
         }
 
         private void Update()
         {
-            if (targetCamera == null || board == null || !board.AcceptsInput)
+            if (_targetCamera == null || _board == null || !_board.AcceptsInput)
             {
                 return;
             }
@@ -27,7 +27,7 @@ namespace FOG.EscapeTheLava
 #if ENABLE_INPUT_SYSTEM
             if (Pointer.current != null && Pointer.current.press.wasPressedThisFrame)
             {
-                Vector2 pointerPosition = Pointer.current.position.ReadValue();
+                var pointerPosition = Pointer.current.position.ReadValue();
                 if (!IsPointerOverUi(-1))
                 {
                     TrySelect(pointerPosition);
@@ -40,9 +40,9 @@ namespace FOG.EscapeTheLava
 #if ENABLE_LEGACY_INPUT_MANAGER
             if (Input.touchCount > 0)
             {
-                for (int i = 0; i < Input.touchCount; i++)
+                for (int touchIndex = 0; touchIndex < Input.touchCount; touchIndex++)
                 {
-                    Touch touch = Input.GetTouch(i);
+                    Touch touch = Input.GetTouch(touchIndex);
                     if (touch.phase == UnityEngine.TouchPhase.Began && !IsPointerOverUi(touch.fingerId))
                     {
                         TrySelect(touch.position);
@@ -61,13 +61,13 @@ namespace FOG.EscapeTheLava
 
         private void TrySelect(Vector2 screenPosition)
         {
-            Vector3 worldPosition = targetCamera.ScreenToWorldPoint(new Vector3(screenPosition.x, screenPosition.y, -targetCamera.transform.position.z));
+            var worldPosition = _targetCamera.ScreenToWorldPoint(new Vector3(screenPosition.x, screenPosition.y, -_targetCamera.transform.position.z));
             worldPosition.z = 0f;
 
-            TileView tile = board.GetTileAtWorldPosition(worldPosition);
+            var tile = _board.GetTileAtWorldPosition(worldPosition);
             if (tile != null)
             {
-                board.NotifyTileClicked(tile, worldPosition, screenPosition);
+                _board.NotifyTileClicked(tile, worldPosition, screenPosition);
             }
         }
 

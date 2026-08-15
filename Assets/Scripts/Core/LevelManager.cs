@@ -31,19 +31,12 @@ namespace FOG.EscapeTheLava
 
         public void AdvanceLevel(GameConfig config)
         {
-            if (randomMode)
+            if (randomMode || CurrentLevelIndex < progressionLevels.Length - 1)
             {
                 CurrentLevelIndex++;
-                LoadCurrentLevel(config);
             }
-            else
-            {
-                if (CurrentLevelIndex < progressionLevels.Length - 1)
-                {
-                    CurrentLevelIndex++;
-                }
-                LoadCurrentLevel(config);
-            }
+
+            LoadCurrentLevel(config);
         }
 
         public void ResetProgression(GameConfig config)
@@ -96,52 +89,52 @@ namespace FOG.EscapeTheLava
 
         private LevelDefinition GenerateRandomLevel(GameConfig config)
         {
-            LevelDefinition level = ScriptableObject.CreateInstance<LevelDefinition>();
+            var level = ScriptableObject.CreateInstance<LevelDefinition>();
             level.name = $"Random Level {CurrentLevelIndex + 1}";
 
-            int cols = UnityEngine.Random.Range(config.RandomMinColumns, config.RandomMaxColumns + 1);
-            int rows = UnityEngine.Random.Range(config.RandomMinRows, config.RandomMaxRows + 1);
-            
-            // Optionally increase size based on CurrentLevelIndex
-            cols = Mathf.Min(cols + CurrentLevelIndex, 40);
+            var columns = UnityEngine.Random.Range(config.randomMinColumns, config.randomMaxColumns + 1);
+            var rows = UnityEngine.Random.Range(config.randomMinRows, config.randomMaxRows + 1);
+
+            // Levels grow slightly with progression so later rounds feel harder.
+            columns = Mathf.Min(columns + CurrentLevelIndex, 40);
             rows = Mathf.Min(rows + CurrentLevelIndex, 24);
 
-            TileType[] tiles = new TileType[cols * rows];
-            for (int i = 0; i < tiles.Length; i++)
+            var generatedTiles = new TileType[columns * rows];
+            for (var i = 0; i < generatedTiles.Length; i++)
             {
-                float rand = UnityEngine.Random.value;
-                if (rand < config.DiamondDensity)
+                var randomValue = UnityEngine.Random.value;
+                if (randomValue < config.diamondDensity)
                 {
-                    tiles[i] = TileType.Diamond;
+                    generatedTiles[i] = TileType.Diamond;
                 }
-                else if (rand < config.DiamondDensity + config.LavaDensity)
+                else if (randomValue < config.diamondDensity + config.lavaDensity)
                 {
-                    tiles[i] = TileType.Lava;
+                    generatedTiles[i] = TileType.Lava;
                 }
                 else
                 {
-                    tiles[i] = TileType.Island;
+                    generatedTiles[i] = TileType.Island;
                 }
             }
 
             // Ensure at least one diamond exists so the level is winnable
-            bool hasDiamond = false;
-            for (int i = 0; i < tiles.Length; i++)
+            var containsDiamond = false;
+            for (var i = 0; i < generatedTiles.Length; i++)
             {
-                if (tiles[i] == TileType.Diamond)
+                if (generatedTiles[i] == TileType.Diamond)
                 {
-                    hasDiamond = true;
+                    containsDiamond = true;
                     break;
                 }
             }
 
-            if (!hasDiamond)
+            if (!containsDiamond)
             {
-                int randomDiamondIndex = UnityEngine.Random.Range(0, tiles.Length);
-                tiles[randomDiamondIndex] = TileType.Diamond;
+                var randomDiamondIndex = UnityEngine.Random.Range(0, generatedTiles.Length);
+                generatedTiles[randomDiamondIndex] = TileType.Diamond;
             }
 
-            level.Configure(cols, rows, tiles);
+            level.Configure(columns, rows, generatedTiles);
             return level;
         }
         #endregion

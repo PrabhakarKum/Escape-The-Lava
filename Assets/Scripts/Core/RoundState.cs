@@ -1,6 +1,6 @@
 namespace FOG.EscapeTheLava
 {
-    public enum GameState
+    public enum RoundState
     {
         Booting,
         Playing,

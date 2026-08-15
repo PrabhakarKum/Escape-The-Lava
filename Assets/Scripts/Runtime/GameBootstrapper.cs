@@ -24,7 +24,7 @@ namespace FOG.EscapeTheLava
         [SerializeField] private EndScreenView endScreen = null;
         [SerializeField] private AudioManager audioManager = null;
         [SerializeField] private LevelManager levelManager = null;
-        [SerializeField] private GameController gameController = null;
+        [SerializeField] private RoundController roundController = null;
         #endregion
 
         #region Initialization
@@ -35,7 +35,7 @@ namespace FOG.EscapeTheLava
 
         private void BuildGame()
         {
-            GameConfig config = gameConfig != null ? gameConfig : GameConfig.CreateRuntimeDefault();
+            var config = gameConfig != null ? gameConfig : GameConfig.CreateRuntimeDefault();
 
             FetchMissingReferences();
 
@@ -54,11 +54,11 @@ namespace FOG.EscapeTheLava
             if (floatingText != null) floatingText.Initialize(config);
             if (endScreen != null) endScreen.Initialize();
 
-            if (gameController != null)
+            if (roundController != null)
             {
                 WireEvents(config);
-                gameController.Initialize(config, board);
-                gameController.StartRound(levelManager.CurrentLevel);
+                roundController.Initialize(config, board);
+                roundController.StartRound(levelManager.CurrentLevel);
             }
         }
 
@@ -67,7 +67,7 @@ namespace FOG.EscapeTheLava
             if (mainCamera == null) mainCamera = Camera.main;
             if (board == null) board = FindAnyObjectByType<BoardController>();
             if (input == null) input = FindAnyObjectByType<BoardInput>();
-            if (gameController == null) gameController = FindAnyObjectByType<GameController>();
+            if (roundController == null) roundController = FindAnyObjectByType<RoundController>();
             if (hud == null) hud = FindAnyObjectByType<HudView>();
             if (endScreen == null) endScreen = FindAnyObjectByType<EndScreenView>();
             if (floatingText == null) floatingText = FindAnyObjectByType<FloatingTextSpawner>();
@@ -99,18 +99,18 @@ namespace FOG.EscapeTheLava
         {
             if (hud != null)
             {
-                gameController.OnTimerUpdated += hud.SetTimer;
+                roundController.OnTimerUpdated += hud.SetTimer;
                 if (audioManager != null)
                 {
-                    gameController.OnTimerUpdated += audioManager.UpdateMusicPitch;
+                    roundController.OnTimerUpdated += audioManager.UpdateMusicPitch;
                 }
-                gameController.OnLivesChanged += hud.SetLives;
-                gameController.OnScoreChanged += hud.SetScore;
+                roundController.OnLivesChanged += hud.SetLives;
+                roundController.OnScoreChanged += hud.SetScore;
             }
 
             if (endScreen != null)
             {
-                gameController.OnRoundEnded += (result) => 
+                roundController.OnRoundEnded += (result) => 
                 {
                     if (audioManager != null)
                     {
@@ -120,7 +120,7 @@ namespace FOG.EscapeTheLava
                     }
                     endScreen.Show(result, levelManager.HasNextLevel());
                 };
-                gameController.OnRoundStarted += () =>
+                roundController.OnRoundStarted += () =>
                 {
                     if (audioManager != null) audioManager.PlayBackgroundMusic();
                     endScreen.HideImmediate();
@@ -128,7 +128,7 @@ namespace FOG.EscapeTheLava
                 
                 endScreen.RetryRequested += () => 
                 {
-                    gameController.StartRound(levelManager.CurrentLevel);
+                    roundController.StartRound(levelManager.CurrentLevel);
                 };
 
                 endScreen.NextLevelRequested += () =>
@@ -136,31 +136,31 @@ namespace FOG.EscapeTheLava
                     levelManager.AdvanceLevel(config);
                     if (hud != null) hud.SetLevelName(levelManager.GetLevelName());
                     if (cameraFraming != null && mainCamera != null) cameraFraming.Initialize(mainCamera, config, levelManager.CurrentLevel);
-                    gameController.StartRound(levelManager.CurrentLevel);
+                    roundController.StartRound(levelManager.CurrentLevel);
                 };
             }
 
             if (floatingText != null || fxSpawner != null || cameraShake != null || audioManager != null)
             {
-                gameController.OnDiamondCollected += (worldPos, screenPos, score) =>
+                roundController.OnDiamondCollected += (worldPosition, screenPosition, pointsAwarded) =>
                 {
                     if (audioManager != null) audioManager.PlayDiamondCollect();
-                    if (floatingText != null) floatingText.Spawn($"+{score}", screenPos, new Color(0.48f, 0.96f, 1f, 1f));
-                    if (fxSpawner != null) fxSpawner.PlayDiamondCollect(worldPos);
+                    if (floatingText != null) floatingText.Spawn($"+{pointsAwarded}", screenPosition, new Color(0.48f, 0.96f, 1f, 1f));
+                    if (fxSpawner != null) fxSpawner.PlayDiamondCollect(worldPosition);
                 };
 
-                gameController.OnLavaHit += (worldPos, screenPos) =>
+                roundController.OnLavaHit += (worldPosition, screenPosition) =>
                 {
                     if (audioManager != null) audioManager.PlayLavaHit();
-                    if (floatingText != null) floatingText.Spawn("-1 Life", screenPos, new Color(1f, 0.4f, 0.16f, 1f));
-                    if (fxSpawner != null) fxSpawner.PlayLavaHit(worldPos);
-                    if (cameraShake != null) cameraShake.Shake(config.CameraShakeDuration, config.CameraShakeStrength);
+                    if (floatingText != null) floatingText.Spawn("-1 Life", screenPosition, new Color(1f, 0.4f, 0.16f, 1f));
+                    if (fxSpawner != null) fxSpawner.PlayLavaHit(worldPosition);
+                    if (cameraShake != null) cameraShake.Shake(config.cameraShakeDuration, config.cameraShakeStrength);
                 };
 
-                gameController.OnSafeTap += (worldPos) =>
+                roundController.OnSafeTap += (worldPosition) =>
                 {
                     if (audioManager != null) audioManager.PlaySafeTap();
-                    if (fxSpawner != null) fxSpawner.PlaySafeTap(worldPos);
+                    if (fxSpawner != null) fxSpawner.PlaySafeTap(worldPosition);
                 };
             }
         }

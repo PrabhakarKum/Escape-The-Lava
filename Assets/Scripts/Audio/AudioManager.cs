@@ -28,25 +28,25 @@ namespace FOG.EscapeTheLava
         #endregion
 
         #region State
-        private AudioSource musicSource;
-        private readonly List<AudioSource> sfxSources = new();
-        private int sfxIndex = 0;
+        private AudioSource _musicSource;
+        private readonly List<AudioSource> _sfxSources = new();
+        private int _sfxIndex = 0;
         #endregion
 
         #region Initialization
         public void Initialize()
         {
-            musicSource = gameObject.AddComponent<AudioSource>();
-            musicSource.loop = true;
-            musicSource.playOnAwake = false;
-            musicSource.volume = musicVolume;
+            _musicSource = gameObject.AddComponent<AudioSource>();
+            _musicSource.loop = true;
+            _musicSource.playOnAwake = false;
+            _musicSource.volume = musicVolume;
 
-            for (int i = 0; i < sfxPoolSize; i++)
+            for (var i = 0; i < sfxPoolSize; i++)
             {
                 var source = gameObject.AddComponent<AudioSource>();
                 source.playOnAwake = false;
                 source.volume = sfxVolume;
-                sfxSources.Add(source);
+                _sfxSources.Add(source);
             }
         }
         #endregion
@@ -54,36 +54,34 @@ namespace FOG.EscapeTheLava
         #region Music Control
         public void PlayBackgroundMusic()
         {
-            if (musicSource == null) return;
-            
-            if (backgroundMusic != null)
-            {
-                musicSource.clip = backgroundMusic;
-                musicSource.pitch = 1f;
-                musicSource.Play();
-            }
+            if (_musicSource == null) return;
+
+            if (backgroundMusic == null) return;
+            _musicSource.clip = backgroundMusic;
+            _musicSource.pitch = 1f;
+            _musicSource.Play();
         }
 
         public void StopMusic()
         {
-            if (musicSource != null)
+            if (_musicSource != null)
             {
-                musicSource.Stop();
+                _musicSource.Stop();
             }
         }
 
         public void UpdateMusicPitch(float remainingTime)
         {
-            if (musicSource == null || !speedUpMusicUnderPressure || !musicSource.isPlaying) return;
+            if (_musicSource == null || !speedUpMusicUnderPressure || !_musicSource.isPlaying) return;
 
             if (remainingTime <= pressureTimeSeconds && remainingTime > 0f)
             {
-                float pressureRatio = 1f - (remainingTime / pressureTimeSeconds);
-                musicSource.pitch = 1f + (pressureRatio * 0.5f);
+                var pressureRatio = 1f - (remainingTime / pressureTimeSeconds);
+                _musicSource.pitch = 1f + (pressureRatio * 0.5f);
             }
             else
             {
-                musicSource.pitch = 1f;
+                _musicSource.pitch = 1f;
             }
         }
         #endregion
@@ -97,14 +95,14 @@ namespace FOG.EscapeTheLava
 
         private void PlaySfx(AudioClip clip)
         {
-            if (clip == null || sfxSources.Count == 0) return;
+            if (clip == null || _sfxSources.Count == 0) return;
 
-            AudioSource source = sfxSources[sfxIndex];
+            var source = _sfxSources[_sfxIndex];
             source.clip = clip;
             source.pitch = Random.Range(0.95f, 1.05f);
             source.Play();
 
-            sfxIndex = (sfxIndex + 1) % sfxSources.Count;
+            _sfxIndex = (_sfxIndex + 1) % _sfxSources.Count;
         }
         #endregion
     }

@@ -10,12 +10,12 @@ namespace FOG.EscapeTheLava
         [SerializeField] private RectTransform textTemplate = null;
         [SerializeField] private RectTransform root = null;
 
-        private GameConfig config;
-        private readonly Queue<Text> textPool = new();
+        private GameConfig _config;
+        private readonly Queue<Text> _textPool = new();
 
         public void Initialize(GameConfig gameConfig)
         {
-            config = gameConfig;
+            _config = gameConfig;
             
             if (root == null)
             {
@@ -32,10 +32,10 @@ namespace FOG.EscapeTheLava
         {
             if (root == null || textTemplate == null) return;
 
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(root, screenPosition, null, out Vector2 localPosition);
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(root, screenPosition, null, out var localPosition);
 
-            Text text = GetText();
-            RectTransform rect = text.rectTransform;
+            var text = GetText();
+            var rect = text.rectTransform;
             rect.anchorMin = new Vector2(0.5f, 0.5f);
             rect.anchorMax = new Vector2(0.5f, 0.5f);
             rect.anchoredPosition = localPosition;
@@ -51,16 +51,16 @@ namespace FOG.EscapeTheLava
 
         private Text GetText()
         {
-            while (textPool.Count > 0)
+            while (_textPool.Count > 0)
             {
-                Text pooled = textPool.Dequeue();
+                var pooled = _textPool.Dequeue();
                 if (pooled != null)
                 {
                     return pooled;
                 }
             }
 
-            RectTransform rect = Instantiate(textTemplate, root, false);
+            var rect = Instantiate(textTemplate, root, false);
             rect.gameObject.name = "Floating Score";
             rect.gameObject.SetActive(false);
             return rect.GetComponent<Text>();
@@ -68,17 +68,17 @@ namespace FOG.EscapeTheLava
 
         private IEnumerator Animate(Text text, RectTransform rect)
         {
-            float elapsed = 0f;
-            float duration = config != null ? config.FloatingTextDuration : 0.85f;
-            Vector2 start = rect.anchoredPosition;
-            Vector3 startScale = Vector3.one * 0.85f;
-            Color startColor = text.color;
+            var elapsed = 0f;
+            var duration = _config != null ? _config.floatingTextDuration : 0.85f;
+            var start = rect.anchoredPosition;
+            var startScale = Vector3.one * 0.85f;
+            var startColor = text.color;
 
             while (elapsed < duration)
             {
                 elapsed += Time.deltaTime;
-                float normalized = Mathf.Clamp01(elapsed / duration);
-                float eased = 1f - Mathf.Pow(1f - normalized, 2f);
+                var normalized = Mathf.Clamp01(elapsed / duration);
+                var eased = 1f - Mathf.Pow(1f - normalized, 2f);
                 rect.anchoredPosition = start + new Vector2(0f, Mathf.Lerp(0f, 76f, eased));
                 rect.localScale = Vector3.Lerp(startScale, Vector3.one * 1.15f, Mathf.Sin(normalized * Mathf.PI));
                 text.color = new Color(startColor.r, startColor.g, startColor.b, 1f - normalized);
@@ -87,7 +87,7 @@ namespace FOG.EscapeTheLava
 
             rect.gameObject.SetActive(false);
             rect.SetParent(root, false);
-            textPool.Enqueue(text);
+            _textPool.Enqueue(text);
         }
     }
 }

@@ -17,19 +17,19 @@ namespace FOG.EscapeTheLava
         [SerializeField] private Sprite heartFullSprite = null;
         [SerializeField] private Sprite heartEmptySprite = null;
 
-        private readonly List<Image> hearts = new();
-        private int previousLives = -1;
+        private readonly List<Image> _hearts = new();
+        private int _previousLives = -1;
 
         public void Initialize(GameConfig config)
         {
-            hearts.Clear();
+            _hearts.Clear();
             ClearGeneratedHearts();
-            int heartCount = Mathf.Max(1, config.StartingLives);
+            var heartCount = Mathf.Max(1, config.startingLives);
             
             // Generate heart slots based on starting lives
-            for (int i = 0; i < heartCount; i++)
+            for (var i = 0; i < heartCount; i++)
             {
-                RectTransform heartRect = Instantiate(heartTemplate, heartsRoot, false);
+                var heartRect = Instantiate(heartTemplate, heartsRoot, false);
                 heartRect.gameObject.name = $"Heart {i + 1}";
                 heartRect.gameObject.SetActive(true);
                 
@@ -37,20 +37,20 @@ namespace FOG.EscapeTheLava
                 // We'll leave anchoredPosition here for fallback
                 heartRect.anchoredPosition = new Vector2(22f + i * 43f, 0f);
                 
-                Image heart = heartRect.GetComponent<Image>();
-                hearts.Add(heart);
+                var heart = heartRect.GetComponent<Image>();
+                _hearts.Add(heart);
             }
 
-            previousLives = config.StartingLives;
+            _previousLives = config.startingLives;
         }
 
         private void ClearGeneratedHearts()
         {
             if (heartsRoot == null || heartTemplate == null) return;
 
-            for (int i = heartsRoot.childCount - 1; i >= 0; i--)
+            for (var i = heartsRoot.childCount - 1; i >= 0; i--)
             {
-                Transform child = heartsRoot.GetChild(i);
+                var child = heartsRoot.GetChild(i);
                 if (child != heartTemplate)
                 {
                     Destroy(child.gameObject);
@@ -62,12 +62,12 @@ namespace FOG.EscapeTheLava
         {
             if (timerText == null) return;
             
-            int seconds = Mathf.CeilToInt(Mathf.Max(0f, secondsRemaining));
+            var seconds = Mathf.CeilToInt(Mathf.Max(0f, secondsRemaining));
             timerText.text = seconds.ToString("00");
 
             if (seconds <= 10)
             {
-                float pulse = (Mathf.Sin(Time.time * 9f) + 1f) * 0.5f;
+                var pulse = (Mathf.Sin(Time.time * 9f) + 1f) * 0.5f;
                 timerText.color = Color.Lerp(new Color(1f, 0.23f, 0.15f, 1f), new Color(1f, 0.84f, 0.22f, 1f), pulse);
                 timerText.rectTransform.localScale = Vector3.one * (1f + pulse * 0.08f);
             }
@@ -80,20 +80,20 @@ namespace FOG.EscapeTheLava
 
         public void SetLives(int livesRemaining)
         {
-            int clamped = Mathf.Clamp(livesRemaining, 0, hearts.Count);
-            for (int i = 0; i < hearts.Count; i++)
+            var clamped = Mathf.Clamp(livesRemaining, 0, _hearts.Count);
+            for (var i = 0; i < _hearts.Count; i++)
             {
-                hearts[i].sprite = i < clamped ? heartFullSprite : heartEmptySprite;
-                hearts[i].color = i < clamped ? Color.white : new Color(1f, 1f, 1f, 0.55f);
+                _hearts[i].sprite = i < clamped ? heartFullSprite : heartEmptySprite;
+                _hearts[i].color = i < clamped ? Color.white : new Color(1f, 1f, 1f, 0.55f);
             }
 
-            if (previousLives >= 0 && clamped < previousLives)
+            if (_previousLives >= 0 && clamped < _previousLives)
             {
-                int lostIndex = Mathf.Clamp(clamped, 0, hearts.Count - 1);
-                StartCoroutine(HeartLossRoutine(hearts[lostIndex].rectTransform));
+                var lostIndex = Mathf.Clamp(clamped, 0, _hearts.Count - 1);
+                StartCoroutine(HeartLossRoutine(_hearts[lostIndex].rectTransform));
             }
 
-            previousLives = clamped;
+            _previousLives = clamped;
         }
 
         public void SetScore(int score, int diamondsCollected, int totalDiamonds)
@@ -112,13 +112,13 @@ namespace FOG.EscapeTheLava
 
         private static IEnumerator HeartLossRoutine(RectTransform heart)
         {
-            float elapsed = 0f;
+            var elapsed = 0f;
             const float duration = 0.24f;
             while (elapsed < duration)
             {
                 elapsed += Time.deltaTime;
-                float normalized = Mathf.Clamp01(elapsed / duration);
-                float pop = Mathf.Sin(normalized * Mathf.PI) * 0.28f;
+                var normalized = Mathf.Clamp01(elapsed / duration);
+                var pop = Mathf.Sin(normalized * Mathf.PI) * 0.28f;
                 heart.localScale = Vector3.one * (1f + pop);
                 heart.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(normalized * Mathf.PI * 2f) * 9f);
                 yield return null;

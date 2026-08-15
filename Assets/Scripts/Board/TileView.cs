@@ -14,11 +14,11 @@ namespace FOG.EscapeTheLava
         [SerializeField] private Transform baseVisualRoot = null;
         [SerializeField] private Transform iconVisualRoot = null;
         
-        private SpriteRenderer baseRenderer;
-        private SpriteRenderer iconRenderer;
-        private BoxCollider2D boxCollider;
-        private TileIdleAnimator idleAnimator;
-        private Coroutine collectRoutine;
+        private SpriteRenderer _baseRenderer;
+        private SpriteRenderer _iconRenderer;
+        private BoxCollider2D _boxCollider;
+        private TileAnimator _animator;
+        private Coroutine _collectRoutine;
 
         public TileType Type { get; private set; }
         public GridCoordinate Coordinate { get; private set; }
@@ -30,28 +30,28 @@ namespace FOG.EscapeTheLava
             Type = type;
             IsCollected = false;
 
-            if (collectRoutine != null)
+            if (_collectRoutine != null)
             {
-                StopCoroutine(collectRoutine);
-                collectRoutine = null;
+                StopCoroutine(_collectRoutine);
+                _collectRoutine = null;
             }
 
-            baseRenderer = EnsureRenderer("Base", 10, ref baseVisualRoot);
-            iconRenderer = EnsureRenderer("Icon", 20, ref iconVisualRoot);
+            _baseRenderer = EnsureRenderer("Base", 10, ref baseVisualRoot);
+            _iconRenderer = EnsureRenderer("Icon", 20, ref iconVisualRoot);
 
-            boxCollider = GetComponent<BoxCollider2D>();
-            if (boxCollider == null)
+            _boxCollider = GetComponent<BoxCollider2D>();
+            if (_boxCollider == null)
             {
-                boxCollider = gameObject.AddComponent<BoxCollider2D>();
+                _boxCollider = gameObject.AddComponent<BoxCollider2D>();
             }
 
-            boxCollider.size = Vector2.one * tileSize;
-            boxCollider.isTrigger = true;
+            _boxCollider.size = Vector2.one * tileSize;
+            _boxCollider.isTrigger = true;
 
-            idleAnimator = GetComponent<TileIdleAnimator>();
-            if (idleAnimator == null)
+            _animator = GetComponent<TileAnimator>();
+            if (_animator == null)
             {
-                idleAnimator = gameObject.AddComponent<TileIdleAnimator>();
+                _animator = gameObject.AddComponent<TileAnimator>();
             }
 
             ApplyVisual(type, tileSize);
@@ -59,9 +59,9 @@ namespace FOG.EscapeTheLava
 
         public void SetInteractable(bool interactable)
         {
-            if (boxCollider != null)
+            if (_boxCollider != null)
             {
-                boxCollider.enabled = interactable;
+                _boxCollider.enabled = interactable;
             }
         }
 
@@ -73,20 +73,20 @@ namespace FOG.EscapeTheLava
             }
 
             IsCollected = true;
-            collectRoutine = StartCoroutine(CollectRoutine());
+            _collectRoutine = StartCoroutine(CollectRoutine());
         }
 
         public void SetType(TileType newType)
         {
-            float tileSize = boxCollider.size.x;
+            var tileSize = _boxCollider.size.x;
 
-            if (collectRoutine != null)
+            if (_collectRoutine != null)
             {
                 // A collect animation is still fading the icon out — only swap the
                 // base/type here and let CollectRoutine finish owning the icon renderer,
                 // otherwise ApplyVisual would disable it mid-animation.
                 ApplyBaseVisual(newType, tileSize);
-                idleAnimator.Initialize(newType, baseRenderer, iconRenderer, tileSize);
+                _animator.Initialize(newType, _baseRenderer, _iconRenderer, tileSize);
                 return;
             }
 
@@ -95,12 +95,12 @@ namespace FOG.EscapeTheLava
 
         public void PlayDamageFeedback()
         {
-            idleAnimator.TriggerImpactPulse();
+            _animator.TriggerImpactPulse();
         }
 
         public void PlaySafeFeedback()
         {
-            idleAnimator.TriggerSoftPulse();
+            _animator.TriggerSoftPulse();
         }
 
         private SpriteRenderer EnsureRenderer(string childName, int sortingOrder, ref Transform visualRoot)
@@ -116,7 +116,7 @@ namespace FOG.EscapeTheLava
                 visualRoot.SetParent(transform, false);
             }
 
-            SpriteRenderer renderer = visualRoot.GetComponent<SpriteRenderer>();
+            var renderer = visualRoot.GetComponent<SpriteRenderer>();
             if (renderer == null)
             {
                 renderer = visualRoot.gameObject.AddComponent<SpriteRenderer>();
@@ -130,45 +130,45 @@ namespace FOG.EscapeTheLava
         {
             ApplyBaseVisual(tileType, tileSize);
 
-            bool hasDiamond = tileType == TileType.Diamond;
-            iconRenderer.enabled = hasDiamond;
-            iconRenderer.sprite = hasDiamond ? diamondSprite : null;
-            iconRenderer.color = Color.white;
-            iconRenderer.transform.localPosition = new Vector3(0f, 0.08f, -0.02f);
-            iconRenderer.transform.localScale = Vector3.one * 0.72f;
+            var hasDiamond = tileType == TileType.Diamond;
+            _iconRenderer.enabled = hasDiamond;
+            _iconRenderer.sprite = hasDiamond ? diamondSprite : null;
+            _iconRenderer.color = Color.white;
+            _iconRenderer.transform.localPosition = new Vector3(0f, 0.08f, -0.02f);
+            _iconRenderer.transform.localScale = Vector3.one * 0.72f;
 
             // Must run after the icon transform above is reset to its canonical scale/position,
             // since Initialize snapshots the icon's current transform as the idle animation's baseline.
-            idleAnimator.Initialize(tileType, baseRenderer, iconRenderer, tileSize);
+            _animator.Initialize(tileType, _baseRenderer, _iconRenderer, tileSize);
         }
 
         private void ApplyBaseVisual(TileType tileType, float tileSize)
         {
             Type = tileType;
-            baseRenderer.sprite = tileType == TileType.Lava ? lavaSprite : islandSprite;
-            baseRenderer.color = Color.white;
+            _baseRenderer.sprite = tileType == TileType.Lava ? lavaSprite : islandSprite;
+            _baseRenderer.color = Color.white;
         }
 
         private IEnumerator CollectRoutine()
         {
-            float duration = 0.22f;
-            float elapsed = 0f;
-            Vector3 startScale = iconRenderer.transform.localScale;
+            var duration = 0.22f;
+            var elapsed = 0f;
+            var startScale = _iconRenderer.transform.localScale;
 
             while (elapsed < duration)
             {
                 elapsed += Time.deltaTime;
-                float normalized = Mathf.Clamp01(elapsed / duration);
-                float pop = Mathf.Sin(normalized * Mathf.PI) * 0.25f;
-                iconRenderer.transform.localScale = startScale * (1f + pop - normalized * 0.35f);
-                iconRenderer.color = new Color(1f, 1f, 1f, 1f - normalized);
+                var normalized = Mathf.Clamp01(elapsed / duration);
+                var pop = Mathf.Sin(normalized * Mathf.PI) * 0.25f;
+                _iconRenderer.transform.localScale = startScale * (1f + pop - normalized * 0.35f);
+                _iconRenderer.color = new Color(1f, 1f, 1f, 1f - normalized);
                 yield return null;
             }
 
-            iconRenderer.enabled = false;
-            iconRenderer.sprite = null;
+            _iconRenderer.enabled = false;
+            _iconRenderer.sprite = null;
             // Removed MVC violation: We no longer mutate our own type here!
-            collectRoutine = null;
+            _collectRoutine = null;
         }
     }
 }

@@ -5,40 +5,43 @@ namespace FOG.EscapeTheLava
 {
     public sealed class CameraShake : MonoBehaviour
     {
-        private Coroutine shakeRoutine;
-        private Vector3 baseLocalPosition;
+        private const float HorizontalShakeFrequency = 85f;
+        private const float VerticalShakeFrequency = 73f;
+
+        private Coroutine _shakeRoutine;
+        private Vector3 _baseLocalPosition;
 
         private void Awake()
         {
-            baseLocalPosition = transform.localPosition;
+            _baseLocalPosition = transform.localPosition;
         }
 
         public void Shake(float duration, float strength)
         {
-            if (shakeRoutine != null)
+            if (_shakeRoutine != null)
             {
-                StopCoroutine(shakeRoutine);
+                StopCoroutine(_shakeRoutine);
             }
 
-            shakeRoutine = StartCoroutine(ShakeRoutine(duration, strength));
+            _shakeRoutine = StartCoroutine(ShakeRoutine(duration, strength));
         }
 
         private IEnumerator ShakeRoutine(float duration, float strength)
         {
-            float elapsed = 0f;
+            var elapsed = 0f;
             while (elapsed < duration)
             {
                 elapsed += Time.deltaTime;
-                float normalized = Mathf.Clamp01(elapsed / duration);
-                float falloff = 1f - normalized;
-                float x = Mathf.Sin(Time.time * 85f) * strength * falloff;
-                float y = Mathf.Cos(Time.time * 73f) * strength * falloff;
-                transform.localPosition = baseLocalPosition + new Vector3(x, y, 0f);
+                var normalized = Mathf.Clamp01(elapsed / duration);
+                var falloff = 1f - normalized;
+                var offsetX = Mathf.Sin(Time.time * HorizontalShakeFrequency) * strength * falloff;
+                var offsetY = Mathf.Cos(Time.time * VerticalShakeFrequency) * strength * falloff;
+                transform.localPosition = _baseLocalPosition + new Vector3(offsetX, offsetY, 0f);
                 yield return null;
             }
 
-            transform.localPosition = baseLocalPosition;
-            shakeRoutine = null;
+            transform.localPosition = _baseLocalPosition;
+            _shakeRoutine = null;
         }
     }
 }

@@ -14,7 +14,7 @@ namespace FOG.EscapeTheLava
         [SerializeField] private Button retryButton = null;
         [SerializeField] private Button nextLevelButton = null;
 
-        private Coroutine showRoutine;
+        private Coroutine _showRoutine;
         public event Action RetryRequested;
         public event Action NextLevelRequested;
 
@@ -42,10 +42,10 @@ namespace FOG.EscapeTheLava
 
         public void HideImmediate()
         {
-            if (showRoutine != null)
+            if (_showRoutine != null)
             {
-                StopCoroutine(showRoutine);
-                showRoutine = null;
+                StopCoroutine(_showRoutine);
+                _showRoutine = null;
             }
 
             gameObject.SetActive(false);
@@ -87,17 +87,16 @@ namespace FOG.EscapeTheLava
 
             if (retryButton != null)
             {
-                // Optionally hide retry if won and has next level, or keep it as "Restart Level"
-                // For now, let's always show it, or hide it when next level is available
+                // Hide Retry once a Next Level button is available, so a win only offers one obvious action.
                 retryButton.gameObject.SetActive(!result.Won || !hasNextLevel);
             }
 
-            if (showRoutine != null)
+            if (_showRoutine != null)
             {
-                StopCoroutine(showRoutine);
+                StopCoroutine(_showRoutine);
             }
 
-            showRoutine = StartCoroutine(ShowRoutine());
+            _showRoutine = StartCoroutine(ShowRoutine());
         }
 
         private void HandleRetryClicked()
@@ -116,15 +115,15 @@ namespace FOG.EscapeTheLava
 
             canvasGroup.blocksRaycasts = true;
             canvasGroup.interactable = true;
-            float elapsed = 0f;
+            var elapsed = 0f;
             const float duration = 0.42f;
             panel.localScale = Vector3.one * 0.82f;
 
             while (elapsed < duration)
             {
                 elapsed += Time.deltaTime;
-                float normalized = Mathf.Clamp01(elapsed / duration);
-                float eased = 1f - Mathf.Pow(1f - normalized, 3f);
+                var normalized = Mathf.Clamp01(elapsed / duration);
+                var eased = 1f - Mathf.Pow(1f - normalized, 3f);
                 canvasGroup.alpha = eased;
                 panel.localScale = Vector3.one * Mathf.Lerp(0.82f, 1f, eased);
                 yield return null;
@@ -132,7 +131,7 @@ namespace FOG.EscapeTheLava
 
             canvasGroup.alpha = 1f;
             panel.localScale = Vector3.one;
-            showRoutine = null;
+            _showRoutine = null;
         }
     }
 }

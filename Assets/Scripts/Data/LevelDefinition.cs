@@ -16,7 +16,7 @@ namespace FOG.EscapeTheLava
 
         public TileType GetTile(int column, int row)
         {
-            int index = row * columns + column;
+            var index = row * columns + column;
             if (tiles == null || index < 0 || index >= tiles.Length)
             {
                 return TileType.Island;
@@ -27,15 +27,15 @@ namespace FOG.EscapeTheLava
 
         public int CountDiamonds()
         {
-            int count = 0;
+            var count = 0;
             if (tiles == null)
             {
                 return count;
             }
 
-            for (int i = 0; i < tiles.Length; i++)
+            foreach (var t in tiles)
             {
-                if (tiles[i] == TileType.Diamond)
+                if (t == TileType.Diamond)
                 {
                     count++;
                 }
@@ -51,7 +51,7 @@ namespace FOG.EscapeTheLava
                 throw new InvalidOperationException($"Level {name} has invalid dimensions {columns} x {rows}.");
             }
 
-            int expected = columns * rows;
+            var expected = columns * rows;
             if (tiles == null || tiles.Length != expected)
             {
                 throw new InvalidOperationException($"Level {name} has {tiles?.Length ?? 0} tiles but expected {expected}.");
@@ -68,7 +68,7 @@ namespace FOG.EscapeTheLava
 
         public static LevelDefinition CreateDefault(GameConfig config)
         {
-            LevelDefinition level = CreateInstance<LevelDefinition>();
+            var level = CreateInstance<LevelDefinition>();
             level.name = "Level 01";
 
             string[] layout =
@@ -83,33 +83,33 @@ namespace FOG.EscapeTheLava
                 "LDGGLGGDGLGDGGGL"
             };
 
-            if (config.Columns != 16 || config.Rows != 8)
+            if (config.columns != 16 || config.rows != 8)
             {
-                level.Configure(config.Columns, config.Rows, GenerateFallback(config.Columns, config.Rows));
+                level.Configure(config.columns, config.rows, GenerateFallback(config.columns, config.rows));
                 return level;
             }
 
-            TileType[] generated = new TileType[config.CellCount];
-            for (int row = 0; row < config.Rows; row++)
+            var generated = new TileType[config.CellCount];
+            for (var row = 0; row < config.rows; row++)
             {
-                for (int column = 0; column < config.Columns; column++)
+                for (var column = 0; column < config.columns; column++)
                 {
-                    generated[row * config.Columns + column] = FromLayoutChar(layout[row][column]);
+                    generated[row * config.columns + column] = FromLayoutChar(layout[row][column]);
                 }
             }
 
-            level.Configure(config.Columns, config.Rows, generated);
+            level.Configure(config.columns, config.rows, generated);
             return level;
         }
 
         private static TileType[] GenerateFallback(int columns, int rows)
         {
-            TileType[] generated = new TileType[columns * rows];
-            for (int row = 0; row < rows; row++)
+            var generated = new TileType[columns * rows];
+            for (var row = 0; row < rows; row++)
             {
-                for (int column = 0; column < columns; column++)
+                for (var column = 0; column < columns; column++)
                 {
-                    int value = Mathf.Abs((row * 17 + column * 7 + row * column * 3) % 13);
+                    var value = Mathf.Abs((row * 17 + column * 7 + row * column * 3) % 13);
                     generated[row * columns + column] = value switch
                     {
                         0 or 1 or 2 => TileType.Lava,
@@ -122,9 +122,9 @@ namespace FOG.EscapeTheLava
             return generated;
         }
 
-        private static TileType FromLayoutChar(char value)
+        private static TileType FromLayoutChar(char layoutChar)
         {
-            return value switch
+            return layoutChar switch
             {
                 'D' => TileType.Diamond,
                 'L' => TileType.Lava,
