@@ -135,7 +135,7 @@ namespace FOG.EscapeTheLava
             _iconRenderer.sprite = hasDiamond ? diamondSprite : null;
             _iconRenderer.color = Color.white;
             _iconRenderer.transform.localPosition = new Vector3(0f, 0.08f, -0.02f);
-            _iconRenderer.transform.localScale = Vector3.one * 0.72f;
+            _iconRenderer.transform.localScale = Vector3.one * 0.5f;
 
             // Must run after the icon transform above is reset to its canonical scale/position,
             // since Initialize snapshots the icon's current transform as the idle animation's baseline.

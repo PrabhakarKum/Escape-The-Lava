@@ -12,14 +12,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d178d26da9874aa53e386085f14bee3a, type: 3}
   m_Name: GameConfig
   m_EditorClassIdentifier: 
-  Columns: 16
-  Rows: 8
-  TileSize: 1
-  TileGap: 0.08
-  RoundDurationSeconds: 30
-  StartingLives: 5
-  DiamondScoreValue: 1
-  CameraShakeDuration: 0.16
-  CameraShakeStrength: 0.12
-  FloatingTextDuration: 0.85
-  EndScreenDelay: 0.35
+  columns: 16
+  rows: 8
+  tileSize: 1
+  tileGap: 0.08
+  roundDurationSeconds: 30
+  startingLives: 5
+  diamondScoreValue: 1
+  cameraShakeDuration: 0.16
+  cameraShakeStrength: 0.12
+  floatingTextDuration: 0.85
+  endScreenDelay: 0.35
+  randomMinColumns: 8
+  randomMaxColumns: 24
+  randomMinRows: 8
+  randomMaxRows: 16
+  lavaDensity: 0.25
+  diamondDensity: 0.1
