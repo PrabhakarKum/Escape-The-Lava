@@ -66,39 +66,17 @@ namespace FOG.EscapeTheLava
             Array.Copy(levelTiles, tiles, levelTiles.Length);
         }
 
+        /// <summary>
+        /// Safety net for when no hand-authored levels are assigned to LevelManager.
+        /// Real levels should be authored as LevelDefinition assets (paint them in the
+        /// Inspector) rather than relying on this — it exists only so the game never
+        /// boots with a completely empty board.
+        /// </summary>
         public static LevelDefinition CreateDefault(GameConfig config)
         {
             var level = CreateInstance<LevelDefinition>();
             level.name = "Level 01";
-
-            string[] layout =
-            {
-                "GDGLLGDGGLLGDGDG",
-                "GGDLGGDGLGGLGDLG",
-                "LGGDGLLGGDGLGGDG",
-                "GLLGDGGDLGGLDGGG",
-                "DGGGLGDGLLGDGGLG",
-                "GDLGGLLGGDGGDLGG",
-                "GGGDLGGDLGGLGGDD",
-                "LDGGLGGDGLGDGGGL"
-            };
-
-            if (config.columns != 16 || config.rows != 8)
-            {
-                level.Configure(config.columns, config.rows, GenerateFallback(config.columns, config.rows));
-                return level;
-            }
-
-            var generated = new TileType[config.CellCount];
-            for (var row = 0; row < config.rows; row++)
-            {
-                for (var column = 0; column < config.columns; column++)
-                {
-                    generated[row * config.columns + column] = FromLayoutChar(layout[row][column]);
-                }
-            }
-
-            level.Configure(config.columns, config.rows, generated);
+            level.Configure(config.columns, config.rows, GenerateFallback(config.columns, config.rows));
             return level;
         }
 
@@ -120,16 +98,6 @@ namespace FOG.EscapeTheLava
             }
 
             return generated;
-        }
-
-        private static TileType FromLayoutChar(char layoutChar)
-        {
-            return layoutChar switch
-            {
-                'D' => TileType.Diamond,
-                'L' => TileType.Lava,
-                _ => TileType.Island
-            };
         }
     }
 }
