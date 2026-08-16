@@ -9,6 +9,8 @@ every diamond before the timer or your lives run out to win.
 The project has two scenes: **Main Menu Scene** (a Start button that loads the game) and
 **Game Scene** (everything described below).
 
+https://github.com/user-attachments/assets/cb810dbf-9984-4118-a097-1e17f08cab84
+
 ## Architecture style
 
 The codebase is event-driven and layered like a loose MVC:
