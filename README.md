@@ -94,10 +94,13 @@ flowchart TB
 - **`RoundEndReason`** — enum: `AllDiamondsCollected, TimeExpired, LivesDepleted`.
 - **`RoundResult`** *(readonly struct)* — the immutable snapshot (`Won`, `Reason`, `Score`,
   `DiamondsCollected`, `TotalDiamonds`, `TimeRemaining`) passed out via `OnRoundEnded`.
-- **`LevelManager`** — owns progression. Two modes: a hand-authored `progressionLevels[]` array
-  (advanced sequentially), or `randomMode`, which procedurally generates a `LevelDefinition` each
-  time (grid grows with level index, capped at 40×24, always guarantees ≥1 diamond so the level
-  is winnable). Falls back to `LevelDefinition.CreateDefault()` if nothing is assigned.
+- **`LevelManager`** — owns progression. A hand-authored `progressionLevels[]` array plays
+  sequentially; once it runs out — or if nothing was assigned at all — the game seamlessly falls
+  into procedural generation instead of repeating a level. `randomMode` forces procedural
+  generation from the start; the fallback kicks in automatically otherwise. Generated levels grow
+  with level index but are always capped at the configured `randomMaxColumns`/`randomMaxRows` (not
+  a hardcoded ceiling), and always guarantee ≥1 diamond so the level is winnable. `HasNextLevel()`
+  is always `true` — there's either another curated level or a freshly generated one.
 
 ### `Board/`
 - **`BoardController`** — builds/pools `TileView`s for a `LevelDefinition` and repositions them;
@@ -116,8 +119,8 @@ flowchart TB
 ### `Data/`
 - **`LevelDefinition`** *(ScriptableObject)* — `columns`, `rows`, and a flat row-major
   `TileType[] tiles`. `GetTile`, `CountDiamonds`, `ValidateOrThrow` (dimension/length sanity check
-  run by `BoardController.Build`), `Configure()` (used by the random generator and the editor
-  tool below), `CreateDefault()` (procedural safety-net fallback, not meant for real levels).
+  run by `BoardController.Build`), `Configure()` (used by `LevelManager`'s procedural generator and
+  the editor tool below).
 
 ### `Editor/`
 - **`LevelDefinitionEditor`** — a custom Inspector (`[CustomEditor(typeof(LevelDefinition))]`)
@@ -145,9 +148,11 @@ flowchart TB
   level's grid; re-applied on screen-size changes (cheap early-out check each `Update`).
 
 ### `Audio/`
-- **`AudioManager`** — a pooled set of `AudioSource`s for SFX (so rapid taps don't cut each
-  other's clips off), one dedicated music source whose pitch ramps up as the timer runs low
-  (`UpdateMusicPitch`, subscribed directly to `RoundController.OnTimerUpdated`).
+- **`AudioManager`** — a pooled set of `AudioSource`s playing SFX via `PlayOneShot` (so rapid taps
+  layer instead of cutting each other's clips off), one dedicated music source whose pitch ramps up
+  as the timer runs low (`UpdateMusicPitch`, subscribed directly to
+  `RoundController.OnTimerUpdated`). `winClips[]` / `loseClips[]` are arrays — `PlayWin()` /
+  `PlayLose()` pick a random entry each time instead of always playing the same clip.
 
 ### `UI/`
 - **`HudView`** — timer (color/scale pulse under 10s remaining), lives (heart icons cloned at
