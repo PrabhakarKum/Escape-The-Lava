@@ -65,39 +65,5 @@ namespace FOG.EscapeTheLava
             tiles = new TileType[levelTiles.Length];
             Array.Copy(levelTiles, tiles, levelTiles.Length);
         }
-
-        /// <summary>
-        /// Safety net for when no hand-authored levels are assigned to LevelManager.
-        /// Real levels should be authored as LevelDefinition assets (paint them in the
-        /// Inspector) rather than relying on this — it exists only so the game never
-        /// boots with a completely empty board.
-        /// </summary>
-        public static LevelDefinition CreateDefault(GameConfig config)
-        {
-            var level = CreateInstance<LevelDefinition>();
-            level.name = "Level 01";
-            level.Configure(config.columns, config.rows, GenerateFallback(config.columns, config.rows));
-            return level;
-        }
-
-        private static TileType[] GenerateFallback(int columns, int rows)
-        {
-            var generated = new TileType[columns * rows];
-            for (var row = 0; row < rows; row++)
-            {
-                for (var column = 0; column < columns; column++)
-                {
-                    var value = Mathf.Abs((row * 17 + column * 7 + row * column * 3) % 13);
-                    generated[row * columns + column] = value switch
-                    {
-                        0 or 1 or 2 => TileType.Lava,
-                        3 or 4 => TileType.Diamond,
-                        _ => TileType.Island
-                    };
-                }
-            }
-
-            return generated;
-        }
     }
 }

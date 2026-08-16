@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -15,8 +16,8 @@ namespace FOG.EscapeTheLava
         [SerializeField] private AudioClip diamondCollectClip = null;
         [SerializeField] private AudioClip lavaHitClip = null;
         [SerializeField] private AudioClip safeTapClip = null;
-        [SerializeField] private AudioClip winClip = null;
-        [SerializeField] private AudioClip loseClip = null;
+        [SerializeField] private AudioClip[] winClips = Array.Empty<AudioClip>();
+        [SerializeField] private AudioClip[] loseClips = Array.Empty<AudioClip>();
         [SerializeField] private AudioClip backgroundMusic = null;
 
         [Header("Settings")]
@@ -90,17 +91,21 @@ namespace FOG.EscapeTheLava
         public void PlayDiamondCollect() => PlaySfx(diamondCollectClip);
         public void PlayLavaHit() => PlaySfx(lavaHitClip);
         public void PlaySafeTap() => PlaySfx(safeTapClip);
-        public void PlayWin() => PlaySfx(winClip);
-        public void PlayLose() => PlaySfx(loseClip);
+        public void PlayWin() => PlaySfx(PickRandomClip(winClips));
+        public void PlayLose() => PlaySfx(PickRandomClip(loseClips));
+
+        private static AudioClip PickRandomClip(AudioClip[] clips)
+        {
+            return clips is { Length: > 0 } ? clips[UnityEngine.Random.Range(0, clips.Length)] : null;
+        }
 
         private void PlaySfx(AudioClip clip)
         {
             if (clip == null || _sfxSources.Count == 0) return;
 
             var source = _sfxSources[_sfxIndex];
-            source.clip = clip;
-            source.pitch = Random.Range(0.95f, 1.05f);
-            source.Play();
+            source.pitch = UnityEngine.Random.Range(0.95f, 1.05f);
+            source.PlayOneShot(clip);
 
             _sfxIndex = (_sfxIndex + 1) % _sfxSources.Count;
         }

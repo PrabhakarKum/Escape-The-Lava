@@ -24,8 +24,8 @@ MonoBehaviour:
   floatingTextDuration: 0.85
   endScreenDelay: 0.35
   randomMinColumns: 8
-  randomMaxColumns: 24
+  randomMaxColumns: 20
   randomMinRows: 8
-  randomMaxRows: 16
-  lavaDensity: 0.25
+  randomMaxRows: 12
+  lavaDensity: 0.35
   diamondDensity: 0.1

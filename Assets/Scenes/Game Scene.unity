@@ -370,7 +370,7 @@ MonoBehaviour:
   floatingText: {fileID: 445701139}
   endScreen: {fileID: 1304677476}
   audioManager: {fileID: 1113917446}
-  levelManager: {fileID: 345755700}
+  levelManager: {fileID: 1379449702}
   roundController: {fileID: 554674670}
 --- !u!1 &330585543
 GameObject:
@@ -535,53 +535,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 84f050e62eec41a04f370bacf0bb9327, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!1 &345755698
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 345755699}
-  - component: {fileID: 345755700}
-  m_Layer: 0
-  m_Name: Level Manager (1)
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &345755699
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 345755698}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 2053720424}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &345755700
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 345755698}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7b7eb96c57524421da023840e2a68ff3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  randomMode: 0
-  progressionLevels:
-  - {fileID: 11400000, guid: e59d85a3ef1b549f38af380ffc6afdec, type: 2}
 --- !u!1 &408644948
 GameObject:
   m_ObjectHideFlags: 0
@@ -1064,7 +1017,7 @@ MonoBehaviour:
   m_margin: {x: 0, y: 0, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
-  m_hasFontAssetChanged: 1
+  m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
 --- !u!1 &445701137
@@ -1748,12 +1701,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f158291f3ecc4db0b6aa8dde25f13de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  diamondCollectClip: {fileID: 8300000, guid: e867e0a7612634e8fb8bd8d6598d2824, type: 3}
-  lavaHitClip: {fileID: 8300000, guid: 5d6cbc0bb57d249d69cff3b33b98edd5, type: 3}
+  diamondCollectClip: {fileID: 8300000, guid: 9e9d4a1ca41ba124bb0b81501dd56f99, type: 3}
+  lavaHitClip: {fileID: 8300000, guid: a6c183f5cad618b49a24f5cde953836e, type: 3}
   safeTapClip: {fileID: 8300000, guid: a811b8f2d78874d0990b27858e8f758b, type: 3}
-  winClip: {fileID: 8300000, guid: 103ffd2e62b1e4d16977a1ebbf28beee, type: 3}
-  loseClip: {fileID: 8300000, guid: 23c218a6369c44ec889de2b8ac028147, type: 3}
-  backgroundMusic: {fileID: 8300000, guid: 86fd09e06fbf84590994deba2889bb22, type: 3}
+  winClips:
+  - {fileID: 8300000, guid: a71b5442ffcf5a5448c43f02e3469f16, type: 3}
+  - {fileID: 8300000, guid: 4f8f96befb5fe234e816e4a01160d39d, type: 3}
+  - {fileID: 8300000, guid: f030c22c3bf269841bf2f8018013ba65, type: 3}
+  - {fileID: 8300000, guid: 9fd9d4a84ea9cd8448c10e6009b47405, type: 3}
+  loseClips:
+  - {fileID: 8300000, guid: ebc8059ecbd08e147acfeb8f0ce533a6, type: 3}
+  - {fileID: 8300000, guid: 51b226d5342c61348a6deb6457b6de5d, type: 3}
+  - {fileID: 8300000, guid: 3a52be0655b42404c90a17c095128471, type: 3}
+  - {fileID: 8300000, guid: 2405d1b4299a8734f9f08ace6cd658aa, type: 3}
+  - {fileID: 8300000, guid: 11c5ad5b89b95fb45846fb4d7beed62c, type: 3}
+  backgroundMusic: {fileID: 8300000, guid: b325cbf99d321e547ad41ca79ca24f53, type: 3}
   sfxPoolSize: 5
   musicVolume: 0.289
   sfxVolume: 0.713
@@ -2158,7 +2120,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1379449701
 Transform:
   m_ObjectHideFlags: 0
@@ -2382,7 +2344,7 @@ MonoBehaviour:
   m_margin: {x: 0, y: 0, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
-  m_hasFontAssetChanged: 1
+  m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
 --- !u!1 &1700000000
@@ -3156,7 +3118,7 @@ MonoBehaviour:
   m_margin: {x: 0, y: 0, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
-  m_hasFontAssetChanged: 1
+  m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
 --- !u!1 &1914593523
@@ -3614,7 +3576,7 @@ MonoBehaviour:
   m_margin: {x: 0, y: 0, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
-  m_hasFontAssetChanged: 1
+  m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
 --- !u!1 &2053720423
@@ -3649,7 +3611,6 @@ Transform:
   - {fileID: 100154942}
   - {fileID: 554674669}
   - {fileID: 1379449701}
-  - {fileID: 345755699}
   - {fileID: 1700000101}
   - {fileID: 1113917445}
   - {fileID: 1700000201}
