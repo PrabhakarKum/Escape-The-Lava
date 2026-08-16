@@ -6,6 +6,9 @@ A 16×8 grid of tiles. Tap a **Diamond** to collect it and score, tap **Lava** t
 tap an **Island** and nothing happens. You have 30 seconds and 5 lives (both tunable). Collect
 every diamond before the timer or your lives run out to win.
 
+The project has two scenes: **Main Menu Scene** (a Start button that loads the game) and
+**Game Scene** (everything described below).
+
 ## Architecture style
 
 The codebase is event-driven and layered like a loose MVC:
@@ -14,8 +17,8 @@ The codebase is event-driven and layered like a loose MVC:
   It has **zero references to any UI, FX, or audio type** — it only knows about `BoardController`
   and `GameConfig`, and it broadcasts what happened through plain C# events.
 - Every presentation system (`HudView`, `EndScreenView`, `FloatingTextSpawner`, `WorldFxSpawner`,
-  `CameraShake`, `AudioManager`) subscribes to those events. None of them know about each other,
-  and `RoundController` doesn't know they exist.
+  `CameraShake`, `DamageVignetteView`, `AudioManager`) subscribes to those events. None of them
+  know about each other, and `RoundController` doesn't know they exist.
 - **`GameBootstrapper`** is the composition root — the *only* class that references every system
   by concrete type. It fetches/creates everything, calls each system's `Initialize()`, and wires
   every event subscription in one place (`WireEvents`).
@@ -48,6 +51,7 @@ flowchart TB
         Float["FloatingTextSpawner"]
         Fx["WorldFxSpawner"]
         Shake["CameraShake"]
+        Vignette["DamageVignetteView"]
         Aud["AudioManager"]
     end
 
@@ -65,11 +69,19 @@ flowchart TB
     RC ==events==> Float
     RC ==events==> Fx
     RC ==events==> Shake
+    RC ==events==> Vignette
     RC ==events==> Aud
     End -.Retry / NextLevel.-> RC
 ```
 
 ## Folder-by-folder
+
+### `MainMenu/`
+- **`MainMenuController`** — the Main Menu Scene's entire logic. Self-contained and unrelated to
+  the event system below: it wires itself to a serialized `Button` reference in `Awake()`
+  (`AddListener(PlayGame)`, unsubscribed in `OnDestroy()`), and `PlayGame()` just calls
+  `SceneManager.LoadScene(gameSceneName)`. Both scenes must be listed in Build Settings for the
+  load to succeed.
 
 ### `Bootstrap/`
 - **`GameBootstrapper`** — entry point (`[DefaultExecutionOrder(-1000)]` so it initializes before
@@ -83,8 +95,9 @@ flowchart TB
 
 ### `Gameplay/`
 - **`GameConfig`** *(ScriptableObject)* — every tunable in one place: grid size, tile size/gap,
-  round duration (30s), starting lives (5), diamond score value, camera-shake feel, floating-text
-  duration, end-screen delay, and random-generation ranges/densities.
+  round duration (30s), starting lives (5), diamond score value, camera-shake feel, lava-flash
+  duration/intensity, floating-text duration, end-screen delay, and random-generation
+  ranges/densities.
 - **`RoundController`** — the round state machine. `Update()` ticks `_remainingTime` while
   `RoundState.Playing` and ends the round on hitting zero. Subscribes to
   `BoardController.TileClicked`; routes each click by `tile.Type` to `CollectDiamond`, `HitLava`,
@@ -163,6 +176,10 @@ flowchart TB
   `GameBootstrapper`.
 - **`FloatingTextSpawner`** — pooled floating `TextMeshProUGUI` popups spawned at the exact
   screen-space click position (rise + scale-pop + fade).
+- **`DamageVignetteView`** — a full-screen red vignette that flashes at the screen edges on a
+  lava hit, the UI-space counterpart to `CameraShake`. The radial-gradient texture is generated
+  procedurally once in `Initialize()` (no art asset needed), then `Flash(duration, peakAlpha)`
+  snaps to peak opacity and eases back to zero — same shape as `CameraShake.Shake()`.
 
 ## Round lifecycle, end to end
 
@@ -194,7 +211,8 @@ sequenceDiagram
 ```
 
 The same shape applies to lava (`HitLava` → `OnLavaHit` → floating "-1 Life", splash FX, camera
-shake, SFX) and to a safe tap (`OnSafeTap` → soft pulse + faint ring FX + SFX, no state change).
+shake, red screen vignette, SFX) and to a safe tap (`OnSafeTap` → soft pulse + faint ring FX +
+SFX, no state change).
 
 ## Event map (who listens to `RoundController`)
 
@@ -206,7 +224,7 @@ shake, SFX) and to a safe tap (`OnSafeTap` → soft pulse + faint ring FX + SFX,
 | `OnRoundStarted` | `AudioManager.PlayBackgroundMusic`, `EndScreenView.HideImmediate` |
 | `OnRoundEnded` | `AudioManager.StopMusic`+`PlayWin`/`PlayLose`, `EndScreenView.Show` |
 | `OnDiamondCollected` | `AudioManager.PlayDiamondCollect`, `FloatingTextSpawner.Spawn`, `WorldFxSpawner.PlayDiamondCollect` |
-| `OnLavaHit` | `AudioManager.PlayLavaHit`, `FloatingTextSpawner.Spawn`, `WorldFxSpawner.PlayLavaHit`, `CameraShake.Shake` |
+| `OnLavaHit` | `AudioManager.PlayLavaHit`, `FloatingTextSpawner.Spawn`, `WorldFxSpawner.PlayLavaHit`, `CameraShake.Shake`, `DamageVignetteView.Flash` |
 | `OnSafeTap` | `AudioManager.PlaySafeTap`, `WorldFxSpawner.PlaySafeTap` |
 | `EndScreenView.RetryRequested` | `RoundController.StartRound(currentLevel)` |
 | `EndScreenView.NextLevelRequested` | `LevelManager.AdvanceLevel`, `HudView.SetLevelName`, `CameraFramingController.Initialize`, `RoundController.StartRound` |

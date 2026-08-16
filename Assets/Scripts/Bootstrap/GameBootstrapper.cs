@@ -21,6 +21,7 @@ namespace FOG.EscapeTheLava
         
         [SerializeField] private HudView hud = null;
         [SerializeField] private FloatingTextSpawner floatingText = null;
+        [SerializeField] private DamageVignetteView damageVignette = null;
         [SerializeField] private EndScreenView endScreen = null;
         [SerializeField] private AudioManager audioManager = null;
         [SerializeField] private LevelManager levelManager = null;
@@ -52,6 +53,7 @@ namespace FOG.EscapeTheLava
                 hud.SetLevelName(levelManager.GetLevelName());
             }
             if (floatingText != null) floatingText.Initialize(config);
+            if (damageVignette != null) damageVignette.Initialize();
             if (endScreen != null) endScreen.Initialize();
 
             if (roundController != null)
@@ -71,6 +73,7 @@ namespace FOG.EscapeTheLava
             if (hud == null) hud = FindAnyObjectByType<HudView>();
             if (endScreen == null) endScreen = FindAnyObjectByType<EndScreenView>();
             if (floatingText == null) floatingText = FindAnyObjectByType<FloatingTextSpawner>();
+            if (damageVignette == null) damageVignette = FindAnyObjectByType<DamageVignetteView>();
             if (fxSpawner == null) fxSpawner = FindAnyObjectByType<WorldFxSpawner>();
             if (cameraFraming == null) cameraFraming = FindAnyObjectByType<CameraFramingController>();
             if (cameraShake == null) cameraShake = FindAnyObjectByType<CameraShake>();
@@ -140,7 +143,7 @@ namespace FOG.EscapeTheLava
                 };
             }
 
-            if (floatingText != null || fxSpawner != null || cameraShake != null || audioManager != null)
+            if (floatingText != null || fxSpawner != null || cameraShake != null || audioManager != null || damageVignette != null)
             {
                 roundController.OnDiamondCollected += (worldPosition, screenPosition, pointsAwarded) =>
                 {
@@ -155,6 +158,7 @@ namespace FOG.EscapeTheLava
                     if (floatingText != null) floatingText.Spawn("-1 Life", screenPosition, new Color(1f, 0.4f, 0.16f, 1f));
                     if (fxSpawner != null) fxSpawner.PlayLavaHit(worldPosition);
                     if (cameraShake != null) cameraShake.Shake(config.cameraShakeDuration, config.cameraShakeStrength);
+                    if (damageVignette != null) damageVignette.Flash(config.lavaFlashDuration, config.lavaFlashAlpha);
                 };
 
                 roundController.OnSafeTap += (worldPosition) =>

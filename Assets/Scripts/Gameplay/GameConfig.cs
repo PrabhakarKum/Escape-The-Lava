@@ -21,6 +21,8 @@ namespace FOG.EscapeTheLava
         [Min(0f)] public float cameraShakeStrength = 0.12f;
         [Min(0.1f)] public float floatingTextDuration = 0.85f;
         [Min(0.1f)] public float endScreenDelay = 0.35f;
+        [Min(0f)] public float lavaFlashDuration = 0.35f;
+        [Range(0f, 1f)] public float lavaFlashAlpha = 0.55f;
 
         [Header("Random Generation")]
         [Min(4)] public int randomMinColumns = 8;
